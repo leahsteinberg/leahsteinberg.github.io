@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <title>Leah Steinberg : Project-in-progress: Yelp Quadrants</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="./theme/css/main.css" type="text/css" />
+        <link href="./" type="application/atom+xml" rel="alternate" title="Leah Steinberg ATOM Feed" />
+
+        <!--[if IE]>
+                <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+        <!--[if lte IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href="./css/ie.css"/>
+                <script src="./js/IE8.js" type="text/javascript"></script><![endif]-->
+
+        <!--[if lt IE 7]>
+                <link rel="stylesheet" type="text/css" media="all" href="./css/ie6.css"/><![endif]-->
+
+</head>
+
+<body>
+        
+<header>
+    <h1><a href="." id="site-title">Leah Steinberg </a> :
+        <a href="./project-in-progress-yelp-quadrants.html" id="page-title">Project-in-progress: Yelp Quadrants</a></h1>
+<time datetime="2014-04-13T00:00:00">Sun 13 April 2014</time></header>
+<article>
+    <p>I love New York Magazine's <a href="http://nymag.com/nymag/culture/approvalmatrix/archive/">approval matrix</a>, and of course there's my lifelong goal of quantifying <em>~</em>vibes<em>~</em>. So the project I'm working on now will allow you to search Yelp and see the results on a coordinate plane of Introverted - Extroverted, Old News - Undiscovered. We're just cleaning up the visualization now, it should be up soon. It turns out, counting the number of times words like "drunk" and "party" are used in a bunch of yelp reviews can tell you <em>everything</em> about where to never go, and THAT is data. Here's a little mockup of what it will hopefully be like, but with lots more restaurants and info and mouseover goodness. I've been loving learning d3 and hope to keep abusing its data-ish intentions. Beware: this stuff here does not actually do anything! It's just here for me to show off my Teen Vogue of '09 graphic design aesthetic.
+<head>
+<script src="d3.js" charset="utf-8"></script>
+</head>
+<body></p>
+<script>
+var jsonData = [{"url":"http://www.yelp.com/biz/blue-ribbon-sushi-new-york",
+                          "name":"Blue Ribbon Sushi",
+                          "image_url":"http://s3-media3.ak.yelpcdn.com/bphoto/NJl8mS0pHrU97WyMF1h0bA/ms.jpg",
+                          "price_range":"$$$",
+                          "address":["119 Sullivan St","New York","NY","10012"],
+                          "old_news":1.5151515151515156,
+                          "extroverted":1,
+
+                          "color" : "green"},
+
+                          {"url":"http://www.yelp.com/biz/sushi-nakazawa-new-york",
+                          "name":"Sushi Nakazawa",
+                          "image_url":"http://s3-media2.ak.yelpcdn.com/bphoto/7_GG3MuwfOUoOLSWopY0dw/ms.jpg",
+                          "price_range":"$$$$",
+                          "address":["23 Commerce St","New York","NY","10014"],
+                          "old_news":1.5151515151515156,
+                          "extroverted":5,
+
+                          "color" : "purple"},
+
+                          {"url":"http://www.yelp.com/biz/en-japanese-brasserie-new-york",
+                          "name":"EN Japanese Brasserie",
+                          "image_url":"http://s3-media3.ak.yelpcdn.com/bphoto/GMUqHcZzAsEXIi8O-n2YVw/ms.jpg",
+                          "price_range":"$$$",
+                          "address":["435 Hudson St","New York","NY","10014"],
+                          "old_news":-3.9393939393939394,
+                          "extroverted":-10,
+                          "color" : "red"}]
+                 var svgWidth = 600;
+            var svgHeight = 600;
+            var offset = 5;
+            var padding = 50;
+            var svgContainer = d3.select("body").append("svg")
+                                         .attr("width", svgWidth+2*padding+offset)
+                                         .attr("height", svgHeight+2*padding+offset);
+                                         //.style("border", "1px solid black");     
+
+            var axisScale = d3.scale.linear().domain([-10,10]).range([padding, svgWidth+padding+(offset/2)]);
+
+
+
+        var makeGraphSquares = function(){
+            var graphSquaresGroup = svgContainer.append("g");
+            var quadcoords = [];
+            quadcoords.push({x:padding, y:padding});
+            quadcoords.push({x:svgWidth/2+offset+padding, y:padding});
+            quadcoords.push({x:padding, y:(svgHeight/2)+offset+padding});
+            quadcoords.push({x:(svgWidth/2)+offset+padding, y:(svgHeight/2)+offset+padding});
+
+            var squarecoordinates = [];
+
+            var sqperquad = 30;
+            for (var s = 0; s< quadcoords.length; s++){
+                for(var i = 0; i<sqperquad; i++){
+                    for (var j=0; j< sqperquad; j++){
+                        squarecoordinates.push({x: i*(svgWidth/(sqperquad*2))+quadcoords[s].x, y: j*(svgHeight/(sqperquad*2))+quadcoords[s].y});
+                    }
+                }
+            }
+
+            var squares = graphSquaresGroup.selectAll("rect")
+                .data(squarecoordinates)
+                .enter().append("rect");
+                console.log('push all squares');
+
+            var squareAttributes = squares
+                .attr("x", function(d) { return d.x; })
+                .attr("y", function(d) { return d.y; })
+                .attr("width", 8)
+                .attr("height", 8)
+                .attr("class", "grid")
+                .style("fill", "ADFFD6");
+          };
+
+
+        var makeRestaurantCircles = function(jsonData){
+
+             var restaurantCircleBackground = svgContainer.selectAll("circle")
+                  .data(jsonData)
+                  .enter()
+                  .append("circle");
+
+              var restaurantCircleAttributes = restaurantCircleBackground
+                  .attr("cx", function(d) { return axisScale(d.old_news)})
+                  .attr("cy", function (d) {return axisScale(d.extroverted)})
+                  .attr("r", 8)
+                  .attr("class", "background")
+                  .style("stroke", "gray")
+                  .style("fill", "white")
+                  .style("stroke-width", "10 px")
+                  .classed("circle", true)
+                  .on("mouseover", function() { d3.select(d3.event.target).style("fill", "grey"); })
+                  .on("mouseout", function() { d3.select(d3.event.target).style("fill", "white"); });
+        };
+
+
+      var makeRestaurantLabels = function(jsonData){
+          var restaurantTextGroup = svgContainer.append("g");
+
+          var restaurantText = restaurantTextGroup.selectAll("text")
+                            .data(jsonData)
+                            .enter()
+                            .append("text");
+
+            var restaurantLabels = restaurantText
+                    .attr("x", function(d) { return axisScale(d.old_news)+3;})
+                    .attr("y", function (d) {return axisScale(d.extroverted)})
+                   .text( function (d) { return d.name })
+                   .attr("font-family", "monospace")
+                   .attr("font-size", "12px")
+                   .attr("fill", "black")
+                   .style("text-decoration", "underline")
+                   .attr("class", "text");
+      };
+
+
+      var makeLabel = function(){
+
+        var labelGroup = svgContainer.append("g");       
+
+        var labelArray = [["Introverted", [-11, 0]], ["Extroverted", [8, 0]], ["Old News", [-1, -10.5]], ["Undiscovered", [-1.5, 10.5]]];
+        console.log(labelArray);
+        var labelSet = labelGroup.selectAll("text").data(labelArray).enter().append("text");
+        console.log("here");
+        var labelAttributes = labelSet
+                .attr("x", function(d){return axisScale(d[1][0])})
+                .attr("y", function(d){return axisScale(d[1][1])})
+                          .text(function(d){return d[0]})
+                          .attr("font-family", "monospace")
+                          .style("font-weight","bold")
+                          .attr("fill", "black");
+
+        var labelSquareGroup = svgContainer.append("g");       
+        var labelSquares = labelSquareGroup.selectAll("square").data(labelArray).enter().append("square");
+        var labelAttributes = labelSquares
+                .attr("x", function(d){return axisScale(d[1][0])})
+                .attr("y", function(d){return axisScale(d[1][1])})
+                .attr("width", 5)
+                .attr("height", 5)
+                .attr("fill", "red");
+      };
+      makeGraphSquares();
+      makeRestaurantCircles(jsonData);
+      makeRestaurantLabels(jsonData);
+      makeLabel();
+
+
+
+</script>
+
+<p></form> 
+</body>
+</html></p>
+</article>
+
+        <footer>
+            <nav>
+                <ul>
+                    <li><a href="./pages/about-me.html">about me</a></li>
+                </ul>
+            </nav>
+                <p id="theme-credit"><a href="http://mathieu.agopian.info/mnmlist/theme.html">Thème mnmlist</a></p>
+        </footer>
+
+</body>
+</html>
