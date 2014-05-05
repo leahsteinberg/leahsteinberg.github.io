@@ -112,7 +112,7 @@ var gameLoop = function(){
 	if(currState === "playing"){
 		if(transforming === true){
 			var shapeMade = toShape();
-			transformConter+=1;
+			transformCounter+=1;
 			if(shapeMade === true){
 				transforming = false;
 				transformCounter = 0;
@@ -403,6 +403,7 @@ window.addEventListener("keydown", function (e){
 		}
 
 	}
+	e.preventDefault();
 });
 
 var checkBound = function(){
