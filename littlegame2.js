@@ -365,7 +365,6 @@ var checkSpread = function(){
 };
 
 window.addEventListener("keydown", function (e){
-	e.preventDefault();
 	if(currState === "playing"){
 		if(e.keyCode === 37){//left arrow
 			p.v.x-=1.4;
@@ -377,6 +376,7 @@ window.addEventListener("keydown", function (e){
 			p.v.y-=1.4;
 		}
 		if(e.keyCode === 40){// downarrow
+			
 			p.v.y+=1.4;
 		}
 		if(e.keyCode === 32){
@@ -403,6 +403,7 @@ window.addEventListener("keydown", function (e){
 		}
 
 	}
+	e.preventDefault();
 });
 
 var checkBound = function(){
