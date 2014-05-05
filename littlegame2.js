@@ -112,7 +112,7 @@ var gameLoop = function(){
 	if(currState === "playing"){
 		if(transforming === true){
 			var shapeMade = toShape();
-			transformCounter+=1;
+			transformConter+=1;
 			if(shapeMade === true){
 				transforming = false;
 				transformCounter = 0;
@@ -365,6 +365,7 @@ var checkSpread = function(){
 };
 
 window.addEventListener("keydown", function (e){
+	e.preventDefault();
 	if(currState === "playing"){
 		if(e.keyCode === 37){//left arrow
 			p.v.x-=1.4;
